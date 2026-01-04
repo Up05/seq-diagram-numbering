@@ -3,9 +3,12 @@ package main
 import "core:fmt"
 import "core:math"
 import "core:strings"
+import os "core:os/os2"
 import fp "core:path/filepath"
 import rl "vendor:raylib"
 import "rulti"
+
+import "core:sys/windows"
 
 Vector :: [2] f32
 
@@ -59,10 +62,30 @@ intersects :: proc(a, b, bs: Vector) -> bool {
 load_icon :: proc(data: [] byte) -> rl.Texture {
     tex := rl.LoadTextureFromImage(rl.LoadImageFromMemory(".png", raw_data(data), cast(i32) len(data)))
     rl.SetTextureFilter(tex, .BILINEAR)
-    return tex
+    return tex 
+}
+
+// windows is the operating system of all time...
+load_tex_windows :: proc(path: string) -> rl.Texture2D {
+	data, err := os.read_entire_file(path, context.allocator)
+	if err != nil { return {} }
+	return 	rl.LoadTextureFromImage(rl.LoadImageFromMemory(strings.clone_to_cstring(fp.ext(path), context.temp_allocator), raw_data(data), i32(len(data))))
+}
+
+// useless, cause you can actually just set the chcp 65001 and I forgot...
+// I guess, at least, I was able forget :)
+save_img_windows :: proc(image: rl.Image, path: string) {
+	size :  i32
+	data := rl.ExportImageToMemory(image, strings.clone_to_cstring(fp.ext(path)), &size)
+	err := os.write_entire_file(path, ([^]byte)(data)[:size])
+	assert(err == nil)
 }
 
 main :: proc() {
+
+	when ODIN_OS == .Windows {
+		windows.SetConsoleOutputCP(.UTF8)
+	}
 
     rl.SetTraceLogLevel(.ERROR)
     rl.SetConfigFlags({ .WINDOW_RESIZABLE })
@@ -109,8 +132,8 @@ main :: proc() {
             dropped_files := rl.LoadDroppedFiles()
             for path in dropped_files.paths[:dropped_files.count] {
                 file: File
-                file.path = strings.clone(string(path))
-                file.t    = rl.LoadTexture(path)
+				file.path = strings.clone(string(path))
+                file.t    = rl.LoadTexture(path) when ODIN_OS != .Windows else load_tex_windows(string(path))
                 file.pos  = { back(files).pos.x + back(files).size.x + 8, 0 }
                 file.size = { f32(file.t.width), f32(file.t.height) }
 
@@ -168,8 +191,13 @@ main :: proc() {
                     c := fp.join({ a, b }, context.temp_allocator)
                     image := rl.LoadImageFromTexture(window.rt.texture) 
                     rl.ImageFlipVertical(&image)
-                    rl.ExportImage(image, strings.clone_to_cstring(c))
-                
+					when ODIN_OS != .Windows {
+						rl.ExportImage(image, strings.clone_to_cstring(c))
+					} else {
+						save_img_windows(image, c)
+					}
+					
+					
                     window.save_state = .None
                 }
             }

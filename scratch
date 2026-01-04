@@ -1,9 +1,0 @@
-
-      : padėti skaičių     u : undo (padėtą skaičių)    + : padidinti skaičių
-      : slankioti ekrane   r : redo                     - : sumažinti skaičių
-      : zoom in/out
-    
-
-     " : padėti skaičių     u : undo (padėtą skaičių)    + : padidinti skaičių \n" +
-     " : slankioti ekrane   r : redo                     - : sumažinti skaičių \n" +
-     " : zoom in/out"
