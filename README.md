@@ -1,4 +1,4 @@
-# Įrankėlis sekų iškvietimų numeravimui
+# Įrankėlis sekų pranešimų numeravimui
 
 Beje, [hack.ttf](https://sourcefoundry.org/hack/) ir [Helvetica.ttf](https://en.wikipedia.org/wiki/Helvetica) yra šrifto/font failai. 
 Aš savo šriftus visada sudedu į programą, nenoriu melstis, kad naudotojai turės. Helveticą naudoja Visual-Paradigm, o Hack naudoju aš (beveik visur).
